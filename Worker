@@ -1,0 +1,90 @@
+import java.io.*
+
+
+
+//Построить 3 класса (родительский и 2 потомственных),
+// которые описывают некоторых работников с почасовой оплатой и с фиксированной оплатой.
+// Описать в базовом классе абстрактный метод для подсчёта среднемесячной з/п.
+// Для почасовых формула расчёта «среднемесячной з/п. = 20.8*8*почасовую ставку», для работников фиксированной оплаты,
+// среднемесячная з/п равна фиксированной месячной оплате.
+//а) Упорядочить всю последовательность работников по спаду среднемесячного заработка.
+// При совпадении з/п - упорядочить по алфавиту имени. Вывести идентификатор работника,
+// имя и среднемесячный заработок для всех элементов списка.
+//б) Вывести первые 5 и последние 3 имён работников с полученного выше списка.
+//в) Организовать запись и чтение массива в\из файла.
+//г) Организовать обработку некорректного входного файла.
+
+class Worker(val name: String, val age: Int, var fix: Double? = null, var stavka: Int? = null, var zp: Double? = null) {
+
+    fun payment(worker: Worker): Double? {
+        return if (worker.stavka != null) {
+            (worker.stavka!! * 20.8 * 8)
+        } else (worker.fix)
+
+    }
+}
+
+fun payroll(array: ArrayList<Worker>) {
+    for (i in 0 until array.size) {
+        array[i].zp = array[i].payment(array[i])
+    }
+}
+
+fun fiveRichest(array: ArrayList<Worker>) {
+    if (array.size < 5) {
+        println("Маловато людей")
+    } else {
+        println("Богатая пятерка:")
+        for (i in array.sortedWith(compareBy<Worker> { it.zp }).reversed()) {
+            println("${i.name.toString()} с зарплатой ${i.zp} ")
+        }
+    }
+}
+
+fun threePoorest(array: ArrayList<Worker>) {
+    if (array.size < 5) {
+        println("Маловато людей")
+    } else {
+        println("Беднейшая тройка:")
+        for (i in 0..2) {
+            array.sortedWith(compareBy<Worker> { it.zp })
+            println("${array[i].name.toString()} с зарплатой ${array[i].zp} ")
+        }
+    }
+}
+
+fun whiter(array: ArrayList<Worker>) {
+    File("somefile.txt").printWriter().use { out ->
+        array.forEach {
+            out.println("Имя ${it.name}, возраст ${it.age}, зарплата ${it.zp}")
+        }
+    }
+}
+
+fun reader() {
+    val lineList = mutableListOf<String>()
+
+    File("somefile.txt").useLines { lines -> lines.forEach { lineList.add(it) } }
+    lineList.forEach { println(">  $it") }
+}
+
+
+fun main() {
+
+    var array = arrayListOf(
+        Worker("Petr", 14, null, 40, null),
+        Worker("Nikolai", 41, null, 18, null),
+        Worker("Mike", 12, 4572.0, null, null),
+        Worker("Jay", 51, 2352.0, null, null),
+        Worker("Elvin", 100, 5672.0, null, null)
+    )
+    payroll(array)
+    fiveRichest(array)
+    threePoorest(array)
+    whiter(array)
+    reader()
+
+
+}
+
+
